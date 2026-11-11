@@ -1,0 +1,27 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check build script syntax
+        run: node --check tools/build.mjs
+      - name: Build static app
+        run: node tools/build.mjs
+      - name: Run smoke tests
+        run: node --test tests/*.test.mjs
+      - name: Ensure generated site is current
+        run: git diff --exit-code -- docs/
